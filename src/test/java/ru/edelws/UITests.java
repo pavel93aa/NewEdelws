@@ -1,3 +1,5 @@
+package ru.edelws;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
@@ -6,16 +8,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.List;
 
 /**
- * Класс содержит простые тесты (для примера), которые демонстрируют возможности работы с объектами типа WebDriver и WebElement
+ * Класс содержит простые UI-тесты, которые демонстрируют возможности работы с объектами типа WebDriver и WebElement
  */
-public class SimpleTests {
+public class UITests {
     private WebDriver driver;
     private WebDriverWait wait;
 
@@ -28,7 +29,7 @@ public class SimpleTests {
         //Установка неявного ожидания для всех элементов
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-        //Установка явного ожидания (для примера)
+        //Установка явного ожидания
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
@@ -39,14 +40,6 @@ public class SimpleTests {
         }
     }
 
-    @DataProvider(name = "dptest")
-    public static Object[][] dataProvider() {
-        return new Object[][]{
-                {"Значение 1", 1},
-                {"Значение 2", 2}
-        };
-    }
-
     @Test(description = "Основной тест")
     public void mainTest() {
         System.out.println("Это основной тест");
@@ -55,8 +48,7 @@ public class SimpleTests {
             Thread.sleep(2000);
 
             //Переход в конструктор
-            WebElement constructor = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[@href='/constructor/']")));
-            constructor.click();
+            driver.findElement(By.xpath("//a[@href='/constructor/']")).click();
 
             //В разделе "Процессор" выбираем "Ryzen 5"
             driver.findElement(By.xpath("//option[text()='Ryzen 5']")).click();
@@ -89,13 +81,14 @@ public class SimpleTests {
             driver.findElement(By.xpath("//input[@class='configurator__search-input']")).sendKeys("test", Keys.ENTER);
 
             //Закрытие окна
-            WebElement window = driver.findElement(By.cssSelector("#failsearch > div > span"));
-            Assert.assertEquals(window.getText(), "ЗАКРЫТЬ ОКНО", "Ошибка!");
-            window.click();
+            WebElement windowCloseButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("#failsearch > div > span")));
+            Assert.assertEquals(windowCloseButton.getText(), "ЗАКРЫТЬ ОКНО", "Ошибка!");
+            windowCloseButton.click();
 
-            WebElement button = driver.findElement(By.xpath("//a[text()='купить']"));
-            Assert.assertEquals(button.getText(), "КУПИТЬ", "Ошибка!");
-            button.click();
+            //Нажатие на кнопку "КУПИТЬ"
+            WebElement buyButton = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("a.configurator__result-btn.configurator__result-btn--1.btn.btn--type-3")));
+            Assert.assertEquals(buyButton.getText(), "КУПИТЬ", "Ошибка!");
+            buyButton.click();
 
             //Открытие новой вкладки
             driver.switchTo().newWindow(WindowType.TAB);
@@ -109,9 +102,9 @@ public class SimpleTests {
         }
     }
 
-    @Test(description = "Простой тест")
+    @Test(description = "DragAndDrop тест")
     public void dragAndDropTest() {
-        System.out.println("Это простой тест");
+        System.out.println("Это DragAndDrop тест");
         try {
             driver.get("https://crossbrowsertesting.github.io/drag-and-drop");
             Thread.sleep(2000);
@@ -162,10 +155,5 @@ public class SimpleTests {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test(description = "Тест с использованием DataProvider", dataProvider = "dptest")
-    public void testWithDataProvider(String stringValue, int intValue) {
-        System.out.println("Это тест с использованием DataProvider " + stringValue + " " + intValue);
     }
 }
